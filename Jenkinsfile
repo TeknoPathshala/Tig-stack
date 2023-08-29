@@ -22,7 +22,10 @@ pipeline {
         stage('Configure Grafana API Key') {
             steps {
                 script {
-                    GRAFANA_API_KEY = generateGrafanaAPIKey()
+                    GRAFANA_API_KEY = sh(script: '''
+                        response=$(curl -X POST "${GRAFANA_URL}/api/auth/keys" --user admin:admin -d '{"name":"Jenkins Key","role":"Admin"}' -H "Content-Type: application/json")
+                        echo $response | grep -o '"key":"[^"]*' | cut -d'"' -f4
+                    ''', returnStdout: true).trim()
                 }
             }
         }
@@ -37,10 +40,4 @@ pipeline {
             }
         }
     }
-}
-
-def generateGrafanaAPIKey() {
-    // Logic to generate the API key
-    def apiKey = sh(script: "echo 'logic_to_generate_key'", returnStdout: true).trim()
-    return apiKey
 }
