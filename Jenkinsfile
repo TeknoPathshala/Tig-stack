@@ -12,7 +12,11 @@ pipeline {
     stages {
         stage('Setup TIG Stack') {
             steps {
-                sh 'bash setup_script.sh'
+                script {
+                    docker.image('ubuntu').inside {
+                        sh 'bash setup_script.sh'
+                    }
+                }
             }
         }
         stage('Configure Grafana API Key') {
